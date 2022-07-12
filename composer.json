@@ -1,0 +1,36 @@
+{
+    "name": "jiny/excel",
+    "description": "jiny Excel Migration",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hojinlee",
+            "email": "infohojin@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.3|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jiny\\Excel\\":"src/"
+        },
+        "files" : [
+            "src/Helpers/Helper.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jiny\\Excel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jiny\\Excel\\JinyExcelServiceProvider"
+            ]
+        }
+    }
+}
