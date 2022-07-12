@@ -10,4 +10,6 @@ Route::post('/excel',[\XEHub\XePlugin\CustomQuantum\Excel\Http\Controllers\Uploa
 
 Route::get('/excel/view/{name}',[\XEHub\XePlugin\CustomQuantum\Excel\Http\Controllers\Upload::class,"view"]);
 
+Route::post('/excel/convert/{name}',[\XEHub\XePlugin\CustomQuantum\Excel\Http\Controllers\Upload::class,"convert"]);
+
 Route::get('/excel/success',[\XEHub\XePlugin\CustomQuantum\Excel\Http\Controllers\Upload::class,"success"]);

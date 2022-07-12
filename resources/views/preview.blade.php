@@ -1,5 +1,5 @@
 <h1>미리보기</h1>
-<form action="">
+<form action="/excel/convert/{{$name}}" method="POST">
 
     <input type="submit" value="Convert">
 

@@ -65,7 +65,7 @@ class Upload extends Controller
         }
         unset($datas);
 
-        return view("excel::preview",['title'=>$title, 'rows'=>$rows]);
+        return view("excel::preview",['title'=>$title, 'rows'=>$rows, 'name'=>$request->name]);
 
 
         /*
@@ -97,6 +97,47 @@ class Upload extends Controller
         */
 
 
+    }
+
+    public function convert(Request $request)
+    {
+        $inputFileName = storage_path('app/uploads').DIRECTORY_SEPARATOR.$request->name;
+        if(file_exists($inputFileName.".xlsx")) {
+            $inputFileName .= ".xlsx";
+        } else if(file_exists($inputFileName.".xls")) {
+            $inputFileName .= ".xls";
+        } else if(file_exists($inputFileName.".csv")) {
+
+        } else {
+            return "처리 불가능한 파일 포맷입니다.";
+        }
+
+        // 엑셀파일 읽기
+        $objExcel = \PhpOffice\PhpSpreadsheet\IOFactory::load($inputFileName);
+        $objExcel->setActiveSheetIndex(0); // 첫번째 시트를 선택
+        $objWorksheet = $objExcel->getActiveSheet();
+
+        $datas = $objWorksheet->toArray();
+        $title = $datas[1];
+        $rows = [];
+        for($i=2; $i<count($datas); $i++) {
+            $rows []= $datas[$i];
+        }
+        unset($datas);
+
+        $sql = [];
+        foreach($rows as $row) {
+            $query = "insert ";
+
+            foreach($row as $key => $value) {
+                $query .= "`".$key."`='".$value."' ";
+            }
+
+            $query .= ";";
+            $sql []= $query;
+        }
+
+        return view("excel::convert",['sql'=>$sql]);
     }
 
     public function success()
