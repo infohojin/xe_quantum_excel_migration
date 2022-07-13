@@ -5,59 +5,53 @@ namespace XEHub\XePlugin\CustomQuantum\Excel\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\DB;
-
 class Upload extends Controller
 {
     private $folder = "import";
 
     public function index(Request $request)
     {
-        if($request->uuid) {
-            $shop = DB::table('xe_quantum_shop')->where('shop_id', $request->uuid)->first();
-
-            $path = storage_path('app/'.$this->folder)."/".$request->uuid;
-            if(!file_exists($path)) {
-                mkdir($path, 0777, true);
+        $path = storage_path('app/'.$this->folder);
+        if($request->id) {
+            if(is_numeric($request->id)) {
+                $path .= "/".$request->id;
+                $id = $request->id;
+            } else {
+                return "id값 지정은 숫자만 가능합니다.";
             }
-
-            $dir = [];
-
-            foreach( scandir($path) as $item) {
-                if($item == "." || $item == "..") continue;
-                $dir []= $item;
-            }
-            return view("excel::upload",['shop'=>$shop, 'path'=>$path, 'dir'=>$dir]);
+        } else {
+            $id = 0;
         }
 
-        $rows = DB::table('xe_quantum_shop')->get();
-        return view("excel::shoplist",['rows'=>$rows]);
+        if(!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        $dir = [];
+        foreach( scandir($path) as $item) {
+            if($item == "." || $item == "..") continue;
+            $dir []= $item;
+        }
+
+        return view("excel::upload",['path'=>$path, 'dir'=>$dir, 'id'=>$id]);
+
     }
 
 
     public function upload(Request $request)
     {
         // $content = $request->file("upload")->get();
-        // 고객데이터
         if ($request->hasFile('upload')) {
             $file = $request->file("upload");
-            $path = $this->folder."/".$request->shop_id;
+            $path = $this->folder;
+            if($request->id) {
+                $path .= "/".$request->id;
+            }
+            $file->storeAs($path, $file->getClientOriginalName());
 
             $fileOriginName = $file->getClientOriginalName();
-            $fileOriginName = "customer.xlsx";
-            $file->storeAs($path, $fileOriginName);
             $name = substr($fileOriginName,0,strrpos($fileOriginName,"."));
-        }
-
-        // 매출데이터
-        if ($request->hasFile('upload2')) {
-            $file = $request->file("upload2");
-            $path = $this->folder."/".$request->shop_id;
-
-            $fileOriginName = $file->getClientOriginalName();
-            $fileOriginName = "sales.xlsx";
-            $file->storeAs($path, $fileOriginName);
-            $name = substr($fileOriginName,0,strrpos($fileOriginName,"."));
+            //return redirect('/excel/view/'.$name);
         }
 
         return back();
@@ -68,12 +62,11 @@ class Upload extends Controller
         if(isset($request->name) && $request->name){
 
             $path = storage_path('app/'.$this->folder).DIRECTORY_SEPARATOR;
-            if(isset($request->uuid) && $request->uuid) {
-                $path .= $request->uuid.DIRECTORY_SEPARATOR;
+            if(isset($request->id) && $request->id) {
+                $path .= $request->id.DIRECTORY_SEPARATOR;
             }
 
             $inputFileName = $path.$request->name;
-            //dd($inputFileName);
             if(file_exists($inputFileName.".xlsx")) {
                 $inputFileName .= ".xlsx";
 
@@ -107,40 +100,28 @@ class Upload extends Controller
     }
 
 
-    /*
-    public function index(Request $request)
+    public function convert(Request $request)
     {
+        $Excel = new \XEHub\XePlugin\CustomQuantum\Excel\Http\Excel();
+        if($inputFileName = $Excel->fileNameCheck($request->name)) {
+            // 엑셀파일 읽기
+            $datas = $Excel->load($inputFileName);
 
-        if($request->id) {
-            if(is_numeric($request->id)) {
-                $path .= "/".$request->id;
-                $id = $request->id;
-            } else {
-                return "id값 지정은 숫자만 가능합니다.";
+            $title = $datas[1];
+            $rows = [];
+            for($i=2; $i<count($datas); $i++) {
+                $rows []= $datas[$i];
             }
-        } else {
-            $id = 0;
+            unset($datas);
+
+            $Convert = new \XEHub\XePlugin\CustomQuantum\Excel\Http\Convert();
+            $sql = $Convert->build($rows);
         }
 
-
-
-
-
-        return view("excel::upload",['path'=>$path, 'dir'=>$dir, 'id'=>$id]);
-
+        return view("excel::convert",['sql'=>$sql]);
     }
-
-
-
-
-
-
-
-
 
     public function success()
     {
     }
-    */
-
 }
