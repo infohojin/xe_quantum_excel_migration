@@ -7,8 +7,39 @@ use Illuminate\Http\Request;
 
 class Excel
 {
+    private $rows;
+
+    public function load($filename)
+    {
+        // 엑셀파일 읽기
+        $objExcel = \PhpOffice\PhpSpreadsheet\IOFactory::load($filename);
+        $objExcel->setActiveSheetIndex(0); // 첫번째 시트를 선택
+        $objWorksheet = $objExcel->getActiveSheet();
+
+        $this->rows = $objWorksheet->toArray();
+        //return $objWorksheet->toArray();
+        return $this;
+    }
+
+    public function get($start=2)
+    {
+        $rows = [];
+        for($i=$start; $i<count($this->rows); $i++) {
+            $rows []= $this->rows[$i];
+        }
+
+        return $rows;
+    }
+
+    public function title($line=1)
+    {
+        // 엑셀 타이틀
+        return $this->rows[$line];
+    }
 
 
+
+    /*
     public function fileNameCheck($name)
     {
         $inputFileName = storage_path('app/uploads').DIRECTORY_SEPARATOR.$name;
@@ -28,16 +59,9 @@ class Excel
 
         return false;
     }
+    */
 
-    public function load($filename)
-    {
-        // 엑셀파일 읽기
-        $objExcel = \PhpOffice\PhpSpreadsheet\IOFactory::load($filename);
-        $objExcel->setActiveSheetIndex(0); // 첫번째 시트를 선택
-        $objWorksheet = $objExcel->getActiveSheet();
 
-        return $objWorksheet->toArray();
-    }
 
     /*
         $rowIterator = $objWorksheet->getRowIterator();

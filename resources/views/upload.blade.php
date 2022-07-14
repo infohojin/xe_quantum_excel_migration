@@ -37,4 +37,5 @@
 </form>
 
 
-<a href='/back-office/shop/migrate/{{$shop->shop_id}}/preparatory'>preparatory</a>
+<a href='/back-office/shop/migrate/{{$shop->shop_id}}/preview'>Preview customer</a>
+<a href='/back-office/shop/migrate/{{$shop->shop_id}}/sales'>Preview sales</a>

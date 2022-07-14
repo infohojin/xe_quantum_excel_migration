@@ -1,26 +1,16 @@
-<h1>미리보기</h1>
-<form action="/excel/convert/{{$name}}" method="POST">
+<h1>디자이너 변환.</h1>
+<br/>
 
-    <input type="submit" value="Convert">
+<ul>
+    @foreach($designer as $name => $status)
+    <li>
+        @if($status)
+            <div>{{$name}}</div>
+        @else
+            <div style="text-decoration:line-through">{{$name}}</div>
+        @endif
+    </li>
+    @endforeach
+</ul>
 
-    <table>
-            <tr>
-                @foreach($title as $i=>$item)
-                    <td>{{$item}}</td>
-                @endforeach
-            </tr>
-            <tr>
-                @foreach($title as $i=>$item)
-                    <td><input type="text" name="col{{$i}}"/></td>
-                @endforeach
-            </tr>
-
-            @foreach ($rows as $row)
-            <tr>
-                @foreach($row as $item)
-                <td>{{$item}}</td>
-                @endforeach
-            </tr>
-            @endforeach
-    </table>
-</form>
+<button>디자이너 추가</button>
